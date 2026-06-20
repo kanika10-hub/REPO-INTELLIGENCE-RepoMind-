@@ -113,16 +113,22 @@ def generate_repo_summary(repo_path):
             "Uses Docker"
         )
 
-    if ".github" in str(files):
+    github_found = False
+
+    for root, dirs, files in os.walk(repo_path):
+
+        if ".github" in dirs:
+            github_found = True
+    if github_found:
         summary.append(
             "GitHub Actions configured"
-        )
+    )
 
     return {
         "summary": summary
     }
 
-import os
+
 
 
 def get_folder_purposes(repo_path):
@@ -160,3 +166,88 @@ def get_folder_purposes(repo_path):
             )
 
     return folders
+
+def detect_framework(repo_path):
+
+    frameworks = []
+
+    for root, dirs, files in os.walk(repo_path):
+
+        for file in files:
+
+            file_path = os.path.join(root, file)
+
+            try:
+                with open(
+                    file_path,
+                    "r",
+                    encoding="utf-8",
+                    errors="ignore"
+                ) as f:
+
+                    content = f.read()
+
+                    if "from fastapi import FastAPI" in content:
+                        frameworks.append("FastAPI")
+
+                    if "from flask import Flask" in content:
+                        frameworks.append("Flask")
+
+                    if "django" in content.lower():
+                        frameworks.append("Django")
+
+            except:
+                continue
+
+    return list(set(frameworks))
+
+def find_entrypoint(repo_path):
+
+    common_files = [
+        "main.py",
+        "app.py",
+        "server.py",
+        "manage.py",
+        "index.js"
+    ]
+
+    found = []
+
+    for root, dirs, files in os.walk(repo_path):
+
+        for file in files:
+
+            if file in common_files:
+
+                found.append(
+                    os.path.join(root, file)
+                )
+
+    return found
+
+def repo_tree(repo_path):
+
+    tree = []
+
+    for root, dirs, files in os.walk(repo_path):
+
+        level = root.replace(
+            repo_path,
+            ""
+        ).count(os.sep)
+
+        indent = "  " * level
+
+        tree.append(
+            f"{indent}{os.path.basename(root)}/"
+        )
+
+        sub_indent = "  " * (level + 1)
+
+        for file in files:
+
+            tree.append(
+                f"{sub_indent}{file}"
+            )
+
+    return "\n".join(tree[:500])

@@ -11,6 +11,7 @@ from tools.explorer_tools import (
     find_entry_points,
     get_directory_structure,
     get_file_summary
+
 )
 
 from tools.github_tools import (
@@ -50,6 +51,7 @@ def search_repo_text(directory: str, query: str):
 
 @mcp.tool()
 def repo_python_files(directory: str):
+
     return find_python_files(directory)
 
 
@@ -94,6 +96,7 @@ def debug_paths():
         "cwd": os.getcwd(),
         "server_file": __file__,
     }
+
 
 if __name__ == "__main__":
     print("Starting RepoMind FastMCP server...")
