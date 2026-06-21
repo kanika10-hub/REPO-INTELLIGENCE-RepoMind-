@@ -119,6 +119,7 @@ def generate_repo_summary(repo_path):
 
         if ".github" in dirs:
             github_found = True
+            
     if github_found:
         summary.append(
             "GitHub Actions configured"
