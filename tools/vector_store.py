@@ -1,0 +1,142 @@
+import os
+from sentence_transformers import SentenceTransformer
+import chromadb
+
+def load_python_files(repo_path):
+
+    files = []
+
+    skip_dirs = {
+        ".venv",
+        "__pycache__",
+        ".git",
+        "chroma_db",
+        "repos",
+        "test_repo"
+    }
+
+    skip_prefixes = {
+        "test"
+    }
+
+    for root, dirs, filenames in os.walk(repo_path):
+
+        dirs[:] = [
+            d for d in dirs
+            if d not in skip_dirs
+        ]
+
+        for file in filenames:
+
+            if not file.endswith(".py"):
+                continue
+
+            if any(
+                file.startswith(prefix)
+                for prefix in skip_prefixes
+            ):
+                continue
+
+            files.append(
+                os.path.join(root, file)
+            )
+
+    return files
+
+def chunk_file(file_path):
+
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as f:
+
+        content = f.read()
+
+    return [
+        {
+            "text": content,
+            "file": file_path
+        }
+    ]
+
+
+
+
+model = SentenceTransformer(
+    "BAAI/bge-small-en-v1.5"
+)
+
+
+
+client = chromadb.PersistentClient(
+    path="./chroma_db"
+)
+
+collection = client.get_or_create_collection(
+    name="repomind"
+)
+
+def index_repository(repo_path):
+    print("start");
+    files = load_python_files(repo_path)
+    print("loaded files from repository")
+    print(f"Found {len(files)} files")
+    
+    idx = 0
+
+    for file_path in files:
+
+        print(f"\nProcessing: {file_path}")
+
+        chunks = chunk_file(file_path)
+
+        for chunk in chunks:
+
+            print("Generating embedding...")
+
+            embedding = model.encode(
+                chunk["text"]
+            ).tolist()
+
+            print("Saving to ChromaDB...")
+
+            collection.add(
+                ids=[str(idx)],
+                embeddings=[embedding],
+                documents=[chunk["text"]],
+                metadatas=[
+                    {"file": chunk["file"]}
+                ]
+            )
+            print("Saved chunk to ChromaDB")
+            idx += 1
+
+            print(f"Stored chunk {idx}")
+            idx+=1
+    return {
+        "indexed_chunks": idx
+    }
+
+def semantic_search(
+    question,
+    top_k=5
+):
+
+    query_embedding = (
+        model.encode(
+            question
+        ).tolist()
+    )
+
+    results = (
+        collection.query(
+            query_embeddings=[
+                query_embedding
+            ],
+            n_results=top_k
+        )
+    )
+
+    return results

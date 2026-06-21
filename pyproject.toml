@@ -5,9 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "chromadb>=1.5.9",
     "flask>=3.1.3",
     "gitpython>=3.1.50",
+    "mcp[cli]>=1.28.0",
     "network>=0.1",
+    "networkx>=3.6.1",
     "pandas>=3.0.3",
     "requests>=2.34.2",
+    "sentence-transformers>=5.6.0",
 ]

@@ -37,6 +37,11 @@ from tools.dependency_graph import (
     critical_files
 )
 
+from tools.vector_store import (
+    index_repository,
+    semantic_search
+)
+
 mcp = FastMCP("RepoMind")
 
 
@@ -265,6 +270,32 @@ def repository_hotspots(
     """
     return critical_files(
         repo_path
+    )
+
+
+
+@mcp.tool()
+def build_repo_embeddings(
+    repo_path: str
+):
+    """
+    Build embeddings for a repository
+    and store them in ChromaDB.
+    """
+    return index_repository(
+        repo_path
+    )
+
+@mcp.tool()
+def search_repository(
+    question: str
+):
+    """
+    Search repository using
+    semantic similarity.
+    """
+    return semantic_search(
+        question
     )
 
 if __name__ == "__main__":
