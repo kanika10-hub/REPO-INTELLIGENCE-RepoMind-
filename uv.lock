@@ -1745,6 +1745,7 @@ dependencies = [
     { name = "network" },
     { name = "networkx" },
     { name = "pandas" },
+    { name = "python-dotenv" },
     { name = "requests" },
     { name = "sentence-transformers" },
 ]
@@ -1758,6 +1759,7 @@ requires-dist = [
     { name = "network", specifier = ">=0.1" },
     { name = "networkx", specifier = ">=3.6.1" },
     { name = "pandas", specifier = ">=3.0.3" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "sentence-transformers", specifier = ">=5.6.0" },
 ]

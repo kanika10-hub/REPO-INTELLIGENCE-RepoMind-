@@ -283,3 +283,107 @@ def analyze_repository(
             )
 
     return repo_report
+
+# refining retrival , now chunking module , classes and fucnstion wise 
+
+def extract_functions(file_path):
+
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as f:
+
+        source_code = f.read()
+
+    tree = ast.parse(source_code)
+
+    functions = []
+
+    for node in ast.walk(tree):
+
+        if isinstance(
+            node,
+            ast.FunctionDef
+        ):
+
+            functions.append(
+                {
+                    "name": node.name,
+                    "line": node.lineno
+                }
+            )
+
+    return functions
+
+
+def extract_classes(file_path):
+
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as f:
+
+        source_code = f.read()
+
+    tree = ast.parse(source_code)
+
+    classes = []
+
+    for node in ast.walk(tree):
+
+        if isinstance(
+            node,
+            ast.ClassDef
+        ):
+
+            classes.append(
+                {
+                    "name": node.name,
+                    "line": node.lineno
+                }
+            )
+
+    return classes
+
+
+
+def extract_function_chunks(file_path):
+
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as f:
+        source = f.read()
+
+    tree = ast.parse(source)
+
+    chunks = []
+
+    for node in ast.walk(tree):
+
+        if isinstance(node, ast.FunctionDef):
+
+            start = node.lineno - 1
+            end = node.end_lineno
+
+            function_code = "\n".join(
+                source.splitlines()[start:end]
+            )
+
+            chunks.append(
+                {
+                    "file": file_path,
+                    "type": "function",
+                    "name": node.name,
+                    "text": function_code
+                }
+            )
+
+    
+    return chunks

@@ -9,6 +9,10 @@ from tools.vector_store import (
     index_repository,
     semantic_search
 )
+from tools.code_intelligence import (
+    extract_functions,
+    extract_classes
+)
 
 repo_path = r"D:\summer26\R&D\RepoMind"
 
@@ -24,6 +28,11 @@ results = semantic_search(
 results = semantic_search(
     "clone github repository"
 )
+
+print("\nMETADATA:\n")
+
+for meta in results["metadatas"][0]:
+    print(meta)
 
 for doc, meta in zip(
     results["documents"][0],

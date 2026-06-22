@@ -1,4 +1,5 @@
 from mcp.server.fastmcp import FastMCP
+from tools.ask_repo import ask_repo
 
 from tools.file_tools import (
     list_files,
@@ -297,6 +298,15 @@ def search_repository(
     return semantic_search(
         question
     )
+
+@mcp.tool()
+def ask_repository(question: str):
+
+    """
+    Ask questions about the indexed repository.
+    """
+
+    return ask_repo(question)
 
 if __name__ == "__main__":
     print("Starting RepoMind FastMCP server...")

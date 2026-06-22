@@ -2,6 +2,8 @@ import os
 from sentence_transformers import SentenceTransformer
 import chromadb
 
+
+
 def load_python_files(repo_path):
 
     files = []
@@ -13,6 +15,7 @@ def load_python_files(repo_path):
         "chroma_db",
         "repos",
         "test_repo"
+        "tests"
     }
 
     skip_prefixes = {
@@ -43,24 +46,18 @@ def load_python_files(repo_path):
 
     return files
 
+from tools.code_intelligence import (
+    extract_function_chunks
+)
+
+
 def chunk_file(file_path):
 
-    with open(
-        file_path,
-        "r",
-        encoding="utf-8",
-        errors="ignore"
-    ) as f:
+    chunks = extract_function_chunks(
+        file_path
+    )
 
-        content = f.read()
-
-    return [
-        {
-            "text": content,
-            "file": file_path
-        }
-    ]
-
+    return chunks
 
 
 
@@ -69,9 +66,14 @@ model = SentenceTransformer(
 )
 
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DB_PATH = BASE_DIR / "chroma_db"
 
 client = chromadb.PersistentClient(
-    path="./chroma_db"
+    path=str(DB_PATH)
 )
 
 collection = client.get_or_create_collection(
@@ -107,8 +109,12 @@ def index_repository(repo_path):
                 embeddings=[embedding],
                 documents=[chunk["text"]],
                 metadatas=[
-                    {"file": chunk["file"]}
-                ]
+                {
+                    "file": chunk["file"],
+                    "type": chunk["type"],
+                    "name": chunk["name"]
+                }
+]
             )
             print("Saved chunk to ChromaDB")
             idx += 1
