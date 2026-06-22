@@ -286,23 +286,4 @@ Example query:
 
 RepoMind successfully retrieves relevant functions from the indexed repository and generates an explanation grounded in the source code.
 
----
 
-## Roadmap
-
-### Next Milestones
-
-* Multi-repository support
-* Repository ingestion pipeline
-* Contributor Agent
-* Architecture Agent
-* Advanced Impact Analysis
-* MCP-native repository workflows
-* Web Interface
-* Deployment
-
----
-
-## Vision
-
-RepoMind aims to become a repository-aware AI assistant capable of ingesting any public GitHub repository and helping developers understand architecture, dependencies, workflows, and implementation details through natural language interaction.
