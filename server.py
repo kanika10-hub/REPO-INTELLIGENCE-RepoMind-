@@ -28,10 +28,15 @@ from tools.code_intelligence import (
     find_imports,
     find_api_routes,
     generate_file_intelligence,
-    analyze_repository
+    analyze_repository,
+    extract_functions,
+    extract_classes,
+    extract_function_chunks
 )
 
 from tools.dependency_graph import (
+    extract_imports,
+     build_dependency_graph,
     repository_dependencies,
     impacted_files,
     dependency_chain,
@@ -42,6 +47,20 @@ from tools.vector_store import (
     index_repository,
     semantic_search
 )
+
+from tools.impact_analysis import (
+    impact_analysis,
+    find_function_callers
+)
+
+from tools.repo_ingestion import (
+    analyze_repository
+)
+from agents.orchestrator import AgentOrchestrator
+from agents.onboarding_agent import OnboardingAgent
+from agents.explanation_agent import ExplanationAgent
+from agents.bug_investigation_agent import BugInvestigationAgent
+from agents.impact_analysis_agent import ImpactAnalysisAgent
 
 mcp = FastMCP("RepoMind")
 
@@ -218,9 +237,48 @@ def repository_intelligence(repo_path: str):
     """
     return analyze_repository(repo_path)
 
+@mcp.tool()
+def get_functions(repo_path: str):
+    """
+    Extract all functions from a repository.
+    """
+    return extract_functions(repo_path)
+
 
 @mcp.tool()
-def repo_dependencies(
+def get_classes(repo_path: str):
+    """
+    Extract all classes from a repository.
+    """
+    return extract_classes(repo_path)
+
+
+@mcp.tool()
+def get_function_chunks(repo_path: str):
+    """
+    Extract function-level chunks for embedding/indexing.
+    """
+    return extract_function_chunks(repo_path)
+
+
+@mcp.tool()
+def get_imports(file_path: str):
+    """
+    Extract imports from a Python file.
+    """
+    return extract_imports(file_path)
+
+
+@mcp.tool()
+def get_dependency_graph(repo_path: str):
+    """
+    Build repository dependency graph.
+    """
+    return build_dependency_graph(repo_path)
+
+
+@mcp.tool()
+def get_repo_dependencies(
     repo_path: str
 ):
     """
@@ -231,7 +289,7 @@ def repo_dependencies(
     )
 
 @mcp.tool()
-def impact_analysis(
+def get_impacted_files(
     repo_path: str,
     target_file: str
 ):
@@ -277,26 +335,30 @@ def repository_hotspots(
 
 @mcp.tool()
 def build_repo_embeddings(
-    repo_path: str
+    repo_path: str,
+    collection_name: str
 ):
     """
     Build embeddings for a repository
     and store them in ChromaDB.
     """
     return index_repository(
-        repo_path
+        repo_path,
+        collection_name
     )
 
 @mcp.tool()
 def search_repository(
-    question: str
+    question: str,
+    collection_name: str
 ):
     """
     Search repository using
     semantic similarity.
     """
     return semantic_search(
-        question
+        question,
+        collection_name
     )
 
 @mcp.tool()
@@ -307,6 +369,46 @@ def ask_repository(question: str):
     """
 
     return ask_repo(question)
+
+
+@mcp.tool()
+def analyze_impact(
+    repo_path: str,
+    function_name: str
+):
+    """
+    Analyze the impact of modifying a function.
+    """
+    return impact_analysis(
+        repo_path,
+        function_name
+    )
+
+
+@mcp.tool()
+def get_function_callers(
+    repo_path: str,
+    function_name: str
+):
+    """
+    Find all callers of a function.
+    """
+    return find_function_callers(
+        repo_path,
+        function_name
+    )
+
+
+
+@mcp.tool()
+def ingest_repository(
+    repo_url: str
+):
+    return analyze_repository(
+        repo_url
+    )
+
+
 
 if __name__ == "__main__":
     print("Starting RepoMind FastMCP server...")

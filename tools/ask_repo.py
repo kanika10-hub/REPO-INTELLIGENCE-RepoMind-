@@ -2,10 +2,11 @@ from tools.llm import ask_llm
 from tools.vector_store import semantic_search
 
 
-def ask_repo(question):
+def ask_repo(collection_name,question):
 
     results = semantic_search(
-        question
+        question,
+        collection_name
     )
 
     context = ""

@@ -80,14 +80,15 @@ collection = client.get_or_create_collection(
     name="repomind"
 )
 
-def index_repository(repo_path):
+def index_repository(  repo_path,
+    collection_name):
     print("start");
     files = load_python_files(repo_path)
     print("loaded files from repository")
     print(f"Found {len(files)} files")
     
     idx = 0
-
+    collection = client.get_or_create_collection(collection_name)
     for file_path in files:
 
         print(f"\nProcessing: {file_path}")
@@ -103,9 +104,9 @@ def index_repository(repo_path):
             ).tolist()
 
             print("Saving to ChromaDB...")
-
+            
             collection.add(
-                ids=[str(idx)],
+                ids=[ f"{collection_name}_{idx}"],
                 embeddings=[embedding],
                 documents=[chunk["text"]],
                 metadatas=[
@@ -120,29 +121,30 @@ def index_repository(repo_path):
             idx += 1
 
             print(f"Stored chunk {idx}")
-            idx+=1
+            
     return {
         "indexed_chunks": idx
     }
 
 def semantic_search(
-    question,
+    question,collection_name,
     top_k=5
 ):
 
-    query_embedding = (
-        model.encode(
-            question
-        ).tolist()
+    collection = client.get_or_create_collection(
+        collection_name
     )
 
-    results = (
-        collection.query(
-            query_embeddings=[
-                query_embedding
-            ],
-            n_results=top_k
-        )
+    query_embedding = model.encode(
+        question
+    ).tolist()
+
+    
+    results = collection.query(
+        query_embeddings=[
+            query_embedding
+        ],
+        n_results=top_k
     )
 
     return results

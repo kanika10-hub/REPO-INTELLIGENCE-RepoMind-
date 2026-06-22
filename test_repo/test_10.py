@@ -8,8 +8,9 @@ from tools.repo_ingestion import (
     analyze_repository
 )
 
-result = analyze_repository(
-    "https://github.com/kanika10-hub/MCP_INITIAL"
-)
+print(
 
-print(result)
+    analyze_repository(
+        "https://github.com/kanika10-hub/SubSmart"
+    )
+)
