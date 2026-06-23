@@ -1,26 +1,36 @@
-from base_agent import BaseAgent
+from agents.base_agent import BaseAgent
+
+
 class BugInvestigationAgent(BaseAgent):
 
     def run(self, query, context=None):
 
-        logs = self.tools["vector_store"].search(query)
-        affected_code = self.tools["dependency_graph"].find_related("login")
+        logs = self.tools["vector_store"].semantic_search(
+    query,
+    context["repo_name"]
+)
+        affected_code = self.tools["dependency_graph"].repository_dependencies(
+    context["repo_path"]
+)
 
         prompt = f"""
 You are a debugging expert.
 
-Problem: {query}
+Problem:
+{query}
 
-Logs / Similar Code:
+Relevant Code:
 {logs}
 
-Related Code:
+Repository Dependencies:
 {affected_code}
 
 List:
+
 1. Possible root causes
 2. Likely failing functions
 3. Debug steps
+4. Suggested fixes
 """
 
-        return self.llm.generate(prompt)
+        return self.llm(prompt)

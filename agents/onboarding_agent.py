@@ -1,26 +1,30 @@
-from base_agent import BaseAgent
+from agents.base_agent import BaseAgent
 class OnboardingAgent(BaseAgent):
 
     def run(self, query, context=None):
 
-        entry_points = self.tools["dependency_graph"].get_entry_points()
+        entry_points = self.tools["dependency_graph"].critical_files(
+    context["repo_path"]
+)
 
-        key_files = self.tools["vector_store"].search(
-            "main entry initialization startup"
-        )
+        key_files = self.tools["vector_store"].semantic_search(
+    "main entry initialization startup",
+    context["repo_name"]
+)
 
         prompt = f"""
 You are an onboarding assistant.
 
-User Question: {query}
+User Question:
+{query}
 
-Entry Points:
+Important Files:
 {entry_points}
 
-Key Files:
+Relevant Code:
 {key_files}
 
-Give a step-by-step learning path.
+Give a step-by-step learning path for understanding this repository.
 """
 
         return self.llm(prompt)
