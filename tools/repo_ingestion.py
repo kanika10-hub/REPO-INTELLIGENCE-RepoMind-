@@ -25,28 +25,28 @@ def analyze_repository(repo_url):
 
     repo_path = clone_result["path"]
 
-    print("Repository cloned")
+    #print("Repository cloned")
 
     # Metadata
     metadata = repo_metadata(
         repo_path
     )
 
-    print("Metadata generated")
+    #print("Metadata generated")
 
     # Summary
     summary = generate_repo_summary(
         repo_path
     )
 
-    print("Summary generated")
+    #print("Summary generated")
 
     # Dependency graph
     dependencies = repository_dependencies(
         repo_path
     )
 
-    print("Dependencies analyzed")
+    #print("Dependencies analyzed")
 
     # Vector indexing
     repo_name = (
@@ -60,7 +60,7 @@ def analyze_repository(repo_url):
         repo_name
     )
 
-    print("Repository indexed")
+    #print("Repository indexed")
 
     return {
     "status": "ready",

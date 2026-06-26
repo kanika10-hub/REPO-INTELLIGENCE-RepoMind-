@@ -2,7 +2,7 @@ import os
 import time
 from dotenv import load_dotenv
 from google import genai
-
+import sys
 load_dotenv()
 
 client = genai.Client(
@@ -26,7 +26,7 @@ def ask_llm(prompt: str, max_retries: int = 5):
             return response.text
 
         except Exception as e:
-            print(f"[LLM Retry {attempt + 1}] {e}")
+            print(f"[LLM Retry {attempt + 1}] {e}",file=sys.stderr)
             time.sleep(3)
 
     return "Gemini unavailable."

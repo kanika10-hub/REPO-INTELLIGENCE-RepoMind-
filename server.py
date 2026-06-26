@@ -62,8 +62,27 @@ from agents.explanation_agent import ExplanationAgent
 from agents.bug_investigation_agent import BugInvestigationAgent
 from agents.impact_analysis_agent import ImpactAnalysisAgent
 
+from tools.repo_ingestion import analyze_repository
+
+
+
+
 mcp = FastMCP("RepoMind")
 
+@mcp.tool()
+def analyze_and_prepare(
+    repo_url: str
+):
+    """
+    Clone, analyze, index and prepare a repository
+    for future questions.
+    """
+
+    result = analyze_repository(
+        repo_url
+    )
+
+    return result
 
 @mcp.tool()
 def list_repo_files(path: str):
@@ -411,5 +430,4 @@ def ingest_repository(
 
 
 if __name__ == "__main__":
-    print("Starting RepoMind FastMCP server...")
     mcp.run()

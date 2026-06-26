@@ -14,7 +14,7 @@ def load_python_files(repo_path):
         ".git",
         "chroma_db",
         "repos",
-        "test_repo"
+        "test_repo",
         "tests"
     }
 
@@ -61,9 +61,13 @@ def chunk_file(file_path):
 
 
 
-model = SentenceTransformer(
-    "BAAI/bge-small-en-v1.5"
-)
+_model = None
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("BAAI/bge-small-en-v1.5")
+    return _model
 
 
 from pathlib import Path
@@ -72,38 +76,39 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DB_PATH = BASE_DIR / "chroma_db"
 
-client = chromadb.PersistentClient(
-    path=str(DB_PATH)
-)
+_client = None
 
-collection = client.get_or_create_collection(
-    name="repomind"
-)
+def get_client():
+    global _client
+    if _client is None:
+        _client = chromadb.PersistentClient(path=str(DB_PATH))
+    return _client
+
 
 def index_repository(  repo_path,
     collection_name):
-    print("start");
+    #print("start");
     files = load_python_files(repo_path)
-    print("loaded files from repository")
-    print(f"Found {len(files)} files")
+    #print("loaded files from repository")
+    #print(f"Found {len(files)} files")
     
     idx = 0
-    collection = client.get_or_create_collection(collection_name)
+    collection = get_client().get_or_create_collection(collection_name)
     for file_path in files:
 
-        print(f"\nProcessing: {file_path}")
+        #print(f"\nProcessing: {file_path}")
 
         chunks = chunk_file(file_path)
 
         for chunk in chunks:
 
-            print("Generating embedding...")
+            #print("Generating embedding...")
 
-            embedding = model.encode(
+            embedding = get_model().encode(
                 chunk["text"]
             ).tolist()
 
-            print("Saving to ChromaDB...")
+            #print("Saving to ChromaDB...")
             
             collection.add(
                 ids=[ f"{collection_name}_{idx}"],
@@ -117,12 +122,14 @@ def index_repository(  repo_path,
                 }
 ]
             )
-            print("Saved chunk to ChromaDB")
+            #print("Saved chunk to ChromaDB")
             idx += 1
 
-            print(f"Stored chunk {idx}")
+            #print(f"Stored chunk {idx}")
             
     return {
+
+        
         "indexed_chunks": idx
     }
 
@@ -131,11 +138,11 @@ def semantic_search(
     top_k=5
 ):
 
-    collection = client.get_or_create_collection(
-        collection_name
-    )
+    collection = get_client().get_or_create_collection(
+    collection_name
+)
 
-    query_embedding = model.encode(
+    query_embedding = get_model().encode(
         question
     ).tolist()
 
